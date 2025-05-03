@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const LoginForm = () => {
   const [username, setUsername] = useState("");
@@ -14,28 +15,51 @@ const LoginForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    // Check if password matches the hardcoded password
-    if (password === "ZoologyProf") {
-      // Save username to localStorage for use in chat
-      localStorage.setItem("username", username);
-      
-      setTimeout(() => {
-        setLoading(false);
-        navigate("/consultation");
-      }, 1000);
-    } else {
-      setTimeout(() => {
-        setLoading(false);
-        toast({
-          title: "မှားယွင်းနေပါသည်",
-          description: "စကားဝှက် မှားယွင်းနေပါသည်။ ထပ်စမ်းကြည့်ပါ။",
-          variant: "destructive",
-        });
-      }, 1000);
+    try {
+      // Fetch the stored password from system_settings
+      const { data, error } = await supabase
+        .from("system_settings")
+        .select("value")
+        .eq("key", "app_password")
+        .single();
+
+      if (error) {
+        throw new Error("Failed to verify password");
+      }
+
+      const storedPassword = data.value;
+
+      // Check if password matches
+      if (password === storedPassword) {
+        // Save username to localStorage for use in chat
+        localStorage.setItem("username", username);
+        
+        setTimeout(() => {
+          setLoading(false);
+          navigate("/consultation");
+        }, 1000);
+      } else {
+        setTimeout(() => {
+          setLoading(false);
+          toast({
+            title: "မှားယွင်းနေပါသည်",
+            description: "စကားဝှက် မှားယွင်းနေပါသည်။ ထပ်စမ်းကြည့်ပါ။",
+            variant: "destructive",
+          });
+        }, 1000);
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setLoading(false);
+      toast({
+        title: "ပြဿနာ ဖြစ်ပေါ်နေပါသည်",
+        description: "ကျေးဇူးပြု၍ နောက်မှ ထပ်မံကြိုးစားပါ။",
+        variant: "destructive",
+      });
     }
   };
 

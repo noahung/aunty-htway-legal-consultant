@@ -6,10 +6,19 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Send } from "lucide-react";
 import { CaseInformation } from "./CaseInformationForm";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
+}
+
+interface DbMessage {
+  id?: string;
+  username: string;
+  content: string;
+  is_ai: boolean;
+  created_at?: string;
 }
 
 interface ChatInterfaceProps {
@@ -25,17 +34,51 @@ const ChatInterface = ({ documentUploaded, caseInformation }: ChatInterfaceProps
   const { toast } = useToast();
   const username = localStorage.getItem("username") || "အသုံးပြုသူ";
 
-  // Add initial greeting message when component mounts or case info changes
+  // Load chat history from database
   useEffect(() => {
-    if (caseInformation && messages.length === 0) {
-      setMessages([
-        {
-          role: "assistant",
-          content: "မင်္ဂလာပါ။ ကျွန်ုပ်သည် သင့်အမှုအတွက် ဥပဒေ အကြံပေးအဖြစ် ကူညီမည့်သူ ဖြစ်ပါသည်။ အမှုအကြောင်း အချက်အလက်များအရ ကျွန်ုပ်က မှတ်ချက်ပြုရမည် ဆိုလျှင်၊ လူသတ်မှု ဖြစ်စဉ်တွင် ပြစ်မှုဆိုင်ရာဥပဒေအရ မည်သည့် အခြေအနေများကို ထည့်သွင်းစဉ်းစားရမည်ကို ကျွန်ုပ်က အကြံပြုပေးနိုင်ပါသည်။ ပြဿနာတစ်ခုခုမေးလိုပါက မေးပါ။",
-        },
-      ]);
+    const loadChatHistory = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("messages")
+          .select("*")
+          .order("created_at", { ascending: true });
+
+        if (error) {
+          console.error("Error fetching chat history:", error);
+          return;
+        }
+
+        if (data && data.length > 0) {
+          const formattedMessages: Message[] = data.map((msg: DbMessage) => ({
+            role: msg.is_ai ? "assistant" : "user",
+            content: msg.content,
+          }));
+          setMessages(formattedMessages);
+        } else if (caseInformation) {
+          // If no chat history but case info exists, add initial greeting
+          const greeting: Message = {
+            role: "assistant",
+            content: "မင်္ဂလာပါ။ ကျွန်ုပ်သည် သင့်အမှုအတွက် ဥပဒေ အကြံပေးအဖြစ် ကူညီမည့်သူ ဖြစ်ပါသည်။ အမှုအကြောင်း အချက်အလက်များအရ ကျွန်ုပ်က မှတ်ချက်ပြုရမည် ဆိုလျှင်၊ လူသတ်မှု ဖြစ်စဉ်တွင် ပြစ်မှုဆိုင်ရာဥပဒေအရ မည်သည့် အခြေအနေများကို ထည့်သွင်းစဉ်းစားရမည်ကို ကျွန်ုပ်က အကြံပြုပေးနိုင်ပါသည်။ ပြဿနာတစ်ခုခုမေးလိုပါက မေးပါ။",
+          };
+          
+          setMessages([greeting]);
+          
+          // Save greeting to database
+          await saveMessageToDb({
+            username: "AI Assistant",
+            content: greeting.content,
+            is_ai: true
+          });
+        }
+      } catch (err) {
+        console.error("Error loading chat history:", err);
+      }
+    };
+
+    if (documentUploaded && caseInformation) {
+      loadChatHistory();
     }
-  }, [caseInformation]);
+  }, [documentUploaded, caseInformation]);
 
   // Auto scroll to bottom when new messages arrive
   useEffect(() => {
@@ -44,6 +87,20 @@ const ChatInterface = ({ documentUploaded, caseInformation }: ChatInterfaceProps
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const saveMessageToDb = async (message: DbMessage) => {
+    try {
+      const { error } = await supabase
+        .from("messages")
+        .insert(message);
+
+      if (error) {
+        console.error("Error saving message:", error);
+      }
+    } catch (err) {
+      console.error("Error saving message to database:", err);
+    }
   };
 
   const handleSend = async () => {
@@ -73,29 +130,54 @@ const ChatInterface = ({ documentUploaded, caseInformation }: ChatInterfaceProps
     };
 
     setMessages((prevMessages) => [...prevMessages, userMessage]);
+    await saveMessageToDb({
+      username,
+      content: input,
+      is_ai: false
+    });
+    
     setInput("");
     setIsLoading(true);
 
-    // Here we would normally send a request to the OpenAI API
-    // For this prototype, we'll simulate a response
-    setTimeout(() => {
-      // Check if the message is in English or Burmese
-      // This is a very simple check, in a real app you'd use a proper language detection library
-      const isEnglish = /^[A-Za-z\s.,!?'-]+$/.test(input);
-      
-      let aiResponse = "";
-      if (isEnglish) {
-        aiResponse = "Based on the Myanmar Penal Code and the case details you've provided, I can advise you on the legal implications of this murder case. In homicide cases, the evidence collection and witness statements are crucial. Given that there were no witnesses, forensic evidence will be particularly important. I would suggest focusing on the timeline between the death and when the body was discovered, as this can provide important context. Would you like me to explain the specific sections of the Myanmar Penal Code that might apply to this case?";
-      } else {
-        aiResponse = "မြန်မာပြစ်မှုဥပဒေနှင့် သင်ပေးထားသော အမှုအကြောင်း အချက်အလက်များအရ၊ ဤလူသတ်မှုအမှု၏ ဥပဒေဆိုင်ရာ သက်ရောက်မှုများကို အကြံပေးနိုင်ပါသည်။ လူသတ်မှုများတွင်၊ သက်သေခံ စုဆောင်းခြင်းနှင့် မျက်မြင်သက်သေ ထွက်ဆိုချက်များသည် အရေးကြီးပါသည်။ မျက်မြင်သက်သေမရှိခြင်းကြောင့်၊ မှုခင်းဆေးပညာဆိုင်ရာ သက်သေများသည် အထူးအရေးကြီးပါမည်။ သေဆုံးချိန်နှင့် အလောင်းတွေ့ရှိချိန်အကြား အချိန်ကာလကို အာရုံစိုက်ရန် အကြံပြုလိုပါသည်၊ ဤသည်က အရေးကြီးသော အခြေအနေများကို ပေးနိုင်ပါသည်။ ဤအမှုနှင့် သက်ဆိုင်နိုင်သော မြန်မာပြစ်မှုဥပဒေ၏ သီးခြားပုဒ်မများကို ရှင်းပြပေးစေလိုပါသလား?";
+    try {
+      // Call our Supabase Edge Function
+      const { data, error } = await supabase.functions.invoke("chat-completion", {
+        body: {
+          message: input,
+          caseInformation
+        }
+      });
+
+      if (error) {
+        throw new Error(error.message);
       }
 
-      setMessages((prevMessages) => [...prevMessages, { 
-        role: "assistant", 
+      const aiResponse = data?.response || "ပြဿနာတစ်ခု ဖြစ်ပေါ်နေပါသည်။ ထပ်မံကြိုးစားပါ။";
+      
+      const assistantMessage: Message = {
+        role: "assistant",
         content: aiResponse
-      }]);
+      };
+
+      setMessages((prevMessages) => [...prevMessages, assistantMessage]);
+      
+      // Save AI response to database
+      await saveMessageToDb({
+        username: "AI Assistant",
+        content: aiResponse,
+        is_ai: true
+      });
+      
+    } catch (err) {
+      console.error("Error calling OpenAI:", err);
+      toast({
+        title: "အမှားတစ်ခုဖြစ်ပွားခဲ့သည်",
+        description: "AI နှင့် ဆက်သွယ်ရာတွင် ပြဿနာရှိနေပါသည်။ ထပ်မံကြိုးစားပါ။",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 3000);
+    }
   };
 
   return (
