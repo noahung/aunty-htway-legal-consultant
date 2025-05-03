@@ -1,87 +1,37 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ConsultationLayout from "@/components/ConsultationLayout";
-import DocumentUpload from "@/components/DocumentUpload";
-import CaseInformationForm, { CaseInformation } from "@/components/CaseInformationForm";
 import ChatInterface from "@/components/ChatInterface";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Consultation = () => {
-  const [documentContent, setDocumentContent] = useState<string | null>(null);
-  const [caseInformation, setCaseInformation] = useState<CaseInformation | null>(null);
-  const [activeTab, setActiveTab] = useState("document");
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleDocumentUpload = (content: string) => {
-    setDocumentContent(content);
-    setActiveTab("case-info");
-  };
-
-  const handleCaseInfoSubmit = (info: CaseInformation) => {
-    setCaseInformation(info);
-    setActiveTab("chat");
-  };
+  // Simulate loading for better UX
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <ConsultationLayout>
       <div className="grid grid-cols-1 gap-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
-            <TabsTrigger value="document" className="myanmar-text">
-              ၁။ ပြစ်မှုဥပဒေတင်ရန်
-            </TabsTrigger>
-            <TabsTrigger 
-              value="case-info" 
-              className="myanmar-text"
-              disabled={!documentContent}
-            >
-              ၂။ အမှုအကြောင်း
-            </TabsTrigger>
-            <TabsTrigger 
-              value="chat" 
-              className="myanmar-text"
-              disabled={!documentContent || !caseInformation}
-            >
-              ၃။ အကြံဉာဏ်ရယူရန်
-            </TabsTrigger>
-          </TabsList>
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h1 className="text-2xl font-bold mb-4 myanmar-text text-myanmar-primary">မြန်မာပြစ်မှုဆိုင်ရာ ဥပဒေအကြံပေးနှင့် တိုင်ပင်ခြင်း</h1>
+          <p className="mb-6 myanmar-text">ဤဆက်သွယ်ရေးစနစ်သည် မြန်မာနိုင်ငံ၏ ပြစ်မှုဆိုင်ရာဥပဒေများအကြောင်း ပညာရှင်အဆင့် အကြံဉာဏ်များ ရယူနိုင်ရန်အတွက် ဖြစ်ပါသည်။</p>
           
-          <TabsContent value="document" className="mt-0">
-            <DocumentUpload onUpload={handleDocumentUpload} />
-            {documentContent && (
-              <div className="mt-6 text-center">
-                <button 
-                  onClick={() => setActiveTab("case-info")}
-                  className="myanmar-text text-myanmar-primary hover:underline"
-                >
-                  နောက်တဆင့်သို့ ဆက်သွားရန် →
-                </button>
-              </div>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="case-info" className="mt-0">
-            <CaseInformationForm onSubmit={handleCaseInfoSubmit} />
-            {caseInformation && (
-              <div className="mt-6 text-center">
-                <button 
-                  onClick={() => setActiveTab("chat")}
-                  className="myanmar-text text-myanmar-primary hover:underline"
-                >
-                  အကြံဉာဏ်ရယူရန်သွားရန် →
-                </button>
-              </div>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="chat" className="mt-0">
-            <div className="h-[calc(100vh-20rem)]">
-              <ChatInterface 
-                documentUploaded={!!documentContent}
-                caseInformation={caseInformation}
-              />
+          {isLoading ? (
+            <div className="flex items-center justify-center p-8">
+              <div className="w-12 h-12 border-4 border-myanmar-primary border-t-transparent rounded-full animate-spin"></div>
             </div>
-          </TabsContent>
-        </Tabs>
+          ) : (
+            <div className="h-[calc(100vh-20rem)]">
+              <ChatInterface />
+            </div>
+          )}
+        </div>
       </div>
     </ConsultationLayout>
   );

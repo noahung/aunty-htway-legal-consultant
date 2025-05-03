@@ -2,9 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Send } from "lucide-react";
-import { CaseInformation } from "./CaseInformationForm";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -21,12 +19,7 @@ interface DbMessage {
   created_at?: string;
 }
 
-interface ChatInterfaceProps {
-  documentUploaded: boolean;
-  caseInformation: CaseInformation | null;
-}
-
-const ChatInterface = ({ documentUploaded, caseInformation }: ChatInterfaceProps) => {
+const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -54,11 +47,11 @@ const ChatInterface = ({ documentUploaded, caseInformation }: ChatInterfaceProps
             content: msg.content,
           }));
           setMessages(formattedMessages);
-        } else if (caseInformation) {
-          // If no chat history but case info exists, add initial greeting
+        } else {
+          // If no chat history, add initial greeting
           const greeting: Message = {
             role: "assistant",
-            content: "မင်္ဂလာပါ။ ကျွန်ုပ်သည် သင့်အမှုအတွက် ဥပဒေ အကြံပေးအဖြစ် ကူညီမည့်သူ ဖြစ်ပါသည်။ အမှုအကြောင်း အချက်အလက်များအရ ကျွန်ုပ်က မှတ်ချက်ပြုရမည် ဆိုလျှင်၊ လူသတ်မှု ဖြစ်စဉ်တွင် ပြစ်မှုဆိုင်ရာဥပဒေအရ မည်သည့် အခြေအနေများကို ထည့်သွင်းစဉ်းစားရမည်ကို ကျွန်ုပ်က အကြံပြုပေးနိုင်ပါသည်။ ပြဿနာတစ်ခုခုမေးလိုပါက မေးပါ။",
+            content: "မင်္ဂလာပါ။ ကျွန်ုပ်သည် မြန်မာပြစ်မှုဥပဒေနှင့် ပတ်သက်၍ အထူးအကြံဉာဏ်ပေးသည့် ဥပဒေအကြံပေးတစ်ဦး ဖြစ်ပါသည်။ ကိုစိုင်းနှင့် ဒေါက်တာထွေးထွေးတို့၏ အမှုကိစ္စနှင့်ပတ်သက်၍ သင့်မေးခွန်းများကို မေးမြန်းနိုင်ပါပြီ။",
           };
           
           setMessages([greeting]);
@@ -75,10 +68,8 @@ const ChatInterface = ({ documentUploaded, caseInformation }: ChatInterfaceProps
       }
     };
 
-    if (documentUploaded && caseInformation) {
-      loadChatHistory();
-    }
-  }, [documentUploaded, caseInformation]);
+    loadChatHistory();
+  }, []);
 
   // Auto scroll to bottom when new messages arrive
   useEffect(() => {
@@ -106,24 +97,6 @@ const ChatInterface = ({ documentUploaded, caseInformation }: ChatInterfaceProps
   const handleSend = async () => {
     if (!input.trim()) return;
 
-    if (!documentUploaded) {
-      toast({
-        title: "မြန်မာပြစ်မှုဥပဒေ တင်ရန်လိုအပ်ပါသည်",
-        description: "AI က အကြံပေးနိုင်ရန် ပြစ်မှုဥပဒေ PDF ဖိုင်ကို တင်ပေးရန် လိုအပ်ပါသည်။",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!caseInformation) {
-      toast({
-        title: "အမှုအကြောင်း အချက်အလက်များ လိုအပ်ပါသည်",
-        description: "အမှုအကြောင်း အချက်အလက်များကို အရင် ဖြည့်စွက်ပေးပါ။",
-        variant: "destructive",
-      });
-      return;
-    }
-
     const userMessage: Message = {
       role: "user",
       content: input,
@@ -143,8 +116,7 @@ const ChatInterface = ({ documentUploaded, caseInformation }: ChatInterfaceProps
       // Call our Supabase Edge Function
       const { data, error } = await supabase.functions.invoke("chat-completion", {
         body: {
-          message: input,
-          caseInformation
+          message: input
         }
       });
 
@@ -181,75 +153,81 @@ const ChatInterface = ({ documentUploaded, caseInformation }: ChatInterfaceProps
   };
 
   return (
-    <Card className="w-full h-full flex flex-col">
-      <CardHeader>
-        <CardTitle className="myanmar-text">ဥပဒေ အကြံပေးနှင့် စကားပြောရန်</CardTitle>
-        <CardDescription className="myanmar-text">
-          {documentUploaded && caseInformation ? 
-            "သင့်အမှုအကြောင်း မေးခွန်းများ မေးပါ။ ဗမာလို သို့မဟုတ် အင်္ဂလိပ်လို ရေးသားနိုင်ပါသည်။" : 
-            "အမှုအကြောင်း အချက်အလက်များနှင့် မြန်မာပြစ်မှုဥပဒေ PDF ဖိုင်ကို အရင် တင်ပေးပါ။"
-          }
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex-grow overflow-auto mb-4">
+    <div className="w-full h-full flex flex-col rounded-lg border overflow-hidden">
+      <div className="bg-myanmar-primary text-white p-4">
+        <h2 className="text-lg font-medium myanmar-text">ဥပဒေအကြံပေးနှင့် စကားပြောရန်</h2>
+        <p className="text-sm myanmar-text text-gray-100">
+          မြန်မာဘာသာဖြင့် သို့မဟုတ် အင်္ဂလိပ်ဘာသာဖြင့် မေးခွန်းများ မေးနိုင်ပါသည်။
+        </p>
+      </div>
+      
+      <div className="flex-grow overflow-auto p-4 bg-gray-50">
         <div className="space-y-4">
           {messages.map((message, index) => (
             <div
               key={index}
-              className={`chat-message ${
-                message.role === "user" ? "user-message" : "ai-message"
+              className={`p-4 rounded-lg ${
+                message.role === "user" 
+                  ? "bg-blue-100 ml-12" 
+                  : "bg-myanmar-light mr-12"
               }`}
             >
               <div className="flex items-start">
                 <div className="flex-grow">
                   {message.role === "user" && (
-                    <p className="font-medium mb-1">
+                    <p className="font-medium mb-1 text-gray-700">
                       [{username}]
                     </p>
                   )}
-                  <p className="myanmar-text">{message.content}</p>
+                  {message.role === "assistant" && (
+                    <p className="font-medium mb-1 text-myanmar-primary">
+                      [ဥပဒေအကြံပေး]
+                    </p>
+                  )}
+                  <p className="myanmar-text whitespace-pre-wrap">{message.content}</p>
                 </div>
               </div>
             </div>
           ))}
           {isLoading && (
-            <div className="chat-message ai-message">
+            <div className="p-4 rounded-lg bg-myanmar-light mr-12">
               <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "0s" }}></div>
-                <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
-                <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "0.4s" }}></div>
+                <div className="w-2 h-2 bg-myanmar-primary rounded-full animate-bounce" style={{ animationDelay: "0s" }}></div>
+                <div className="w-2 h-2 bg-myanmar-primary rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+                <div className="w-2 h-2 bg-myanmar-primary rounded-full animate-bounce" style={{ animationDelay: "0.4s" }}></div>
               </div>
             </div>
           )}
           <div ref={messagesEndRef} />
         </div>
-      </CardContent>
-      <CardFooter className="border-t p-4">
-        <div className="w-full flex items-center space-x-2">
+      </div>
+      
+      <div className="border-t p-4 bg-white">
+        <div className="flex items-center space-x-2">
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={documentUploaded && caseInformation ? "မေးခွန်းများ ဤနေရာတွင် ရေးပါ..." : "အမှုအကြောင်း အချက်အလက်များနှင့် ပြစ်မှုဥပဒေ PDF ဖိုင်ကို အရင် တင်ပေးပါ။"}
+            placeholder="မေးခွန်းများ ဤနေရာတွင် ရေးပါ..."
             className="flex-grow myanmar-text resize-none"
-            disabled={!documentUploaded || !caseInformation || isLoading}
+            disabled={isLoading}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
                 handleSend();
               }
             }}
-            rows={1}
+            rows={2}
           />
           <Button 
             onClick={handleSend}
-            disabled={!documentUploaded || !caseInformation || isLoading || !input.trim()}
-            className="flex-shrink-0"
+            disabled={isLoading || !input.trim()}
+            className="flex-shrink-0 bg-myanmar-primary hover:bg-myanmar-primary-dark"
           >
             <Send className="h-5 w-5" />
           </Button>
         </div>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 };
 
