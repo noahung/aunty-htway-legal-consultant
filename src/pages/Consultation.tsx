@@ -19,11 +19,10 @@ const Consultation = () => {
     <ConsultationLayout>
       <div className="grid grid-cols-1 gap-8">
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
-            <div>
-              <h1 className="text-2xl font-bold mb-2 myanmar-text text-myanmar-primary">အန်တီထွေးအမှုအတွက် ဥပဒေအကြံပေးနှင့် တိုင်ပင်ခြင်း</h1>
-              <p className="mb-3 myanmar-text">ဤဆက်သွယ်ရေးစနစ်သည် မြန်မာနိုင်ငံ၏ ပြစ်မှုဆိုင်ရာဥပဒေများအကြောင်း ပညာရှင်အဆင့် အကြံဉာဏ်များ ရယူနိုင်ရန်အတွက် ဖြစ်ပါသည်။</p>
-            </div>
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold mb-2 myanmar-text text-myanmar-primary">အန်တီထွေးအမှုအတွက် ဥပဒေအကြံပေးနှင့် တိုင်ပင်ခြင်း</h1>
+            <p className="mb-3 myanmar-text">ဤဆက်သွယ်ရေးစနစ်သည် မြန်မာနိုင်ငံ၏ ပြစ်မှုဆိုင်ရာဥပဒေများအကြောင်း ပညာရှင်အဆင့် အကြံဉာဏ်များ ရယူနိုင်ရန်အတွက် ဖြစ်ပါသည်။</p>
+          </div>
           
           {isLoading ? (
             <div className="flex items-center justify-center p-8">
