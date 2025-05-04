@@ -21,7 +21,7 @@ const Consultation = () => {
         <div className="bg-white p-6 rounded-lg shadow-md">
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold mb-2 myanmar-text text-myanmar-primary">မြန်မာပြစ်မှုဆိုင်ရာ ဥပဒေအကြံပေးနှင့် တိုင်ပင်ခြင်း</h1>
+              <h1 className="text-2xl font-bold mb-2 myanmar-text text-myanmar-primary">အန်တီထွေးအမှုအတွက် ဥပဒေအကြံပေးနှင့် တိုင်ပင်ခြင်း</h1>
               <p className="mb-3 myanmar-text">ဤဆက်သွယ်ရေးစနစ်သည် မြန်မာနိုင်ငံ၏ ပြစ်မှုဆိုင်ရာဥပဒေများအကြောင်း ပညာရှင်အဆင့် အကြံဉာဏ်များ ရယူနိုင်ရန်အတွက် ဖြစ်ပါသည်။</p>
             </div>
             
@@ -33,7 +33,7 @@ const Consultation = () => {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <p className="text-sm text-center myanmar-text font-medium">ဒေါက်တာထွေးထွေး အား ဂုဏ်ပြုသတိရခြင်း</p>
+              <p className="text-sm text-center myanmar-text font-medium">အန်တီထွေး အား ဂုဏ်ပြုသတိရခြင်း</p>
             </div>
           </div>
           
