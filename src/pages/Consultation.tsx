@@ -24,18 +24,6 @@ const Consultation = () => {
               <h1 className="text-2xl font-bold mb-2 myanmar-text text-myanmar-primary">အန်တီထွေးအမှုအတွက် ဥပဒေအကြံပေးနှင့် တိုင်ပင်ခြင်း</h1>
               <p className="mb-3 myanmar-text">ဤဆက်သွယ်ရေးစနစ်သည် မြန်မာနိုင်ငံ၏ ပြစ်မှုဆိုင်ရာဥပဒေများအကြောင်း ပညာရှင်အဆင့် အကြံဉာဏ်များ ရယူနိုင်ရန်အတွက် ဖြစ်ပါသည်။</p>
             </div>
-            
-            <div className="bg-myanmar-light p-3 rounded-lg shadow-sm mb-4 md:mb-0 flex flex-col items-center">
-              <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-myanmar-primary mb-2">
-                <img 
-                  src="/lovable-uploads/1f837d20-4554-43c5-ac88-07c17583ac0f.png" 
-                  alt="Dr. Htway Htway" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <p className="text-sm text-center myanmar-text font-medium">အန်တီထွေး အား ဂုဏ်ပြုသတိရခြင်း</p>
-            </div>
-          </div>
           
           {isLoading ? (
             <div className="flex items-center justify-center p-8">
