@@ -24,7 +24,7 @@ const Login = () => {
           </svg>
         </div>
         <h1 className="text-3xl font-bold myanmar-text text-myanmar-primary mb-2">
-          မြန်မာဥပဒေ အကြံပေး
+          အန်တီထွေးအမှုအတွက် ဥပဒေ အကြံပေး
         </h1>
         <p className="text-myanmar-dark myanmar-text">
           မြန်မာပြစ်မှုဥပဒေဆိုင်ရာ အကြံဉာဏ်ရယူရန် ဝင်ရောက်ပါ
