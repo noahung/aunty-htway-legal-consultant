@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import ConsultationLayout from "@/components/ConsultationLayout";
 import ChatInterface from "@/components/ChatInterface";
-import { Image } from "lucide-react";
 
 const Consultation = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -29,7 +28,7 @@ const Consultation = () => {
             <div className="bg-myanmar-light p-3 rounded-lg shadow-sm mb-4 md:mb-0 flex flex-col items-center">
               <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-myanmar-primary mb-2">
                 <img 
-                  src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400" 
+                  src="/lovable-uploads/1f837d20-4554-43c5-ac88-07c17583ac0f.png" 
                   alt="Dr. Htway Htway" 
                   className="w-full h-full object-cover"
                 />

@@ -63,8 +63,12 @@ serve(async (req) => {
       throw new Error("Message is required");
     }
 
-    // Create system message with hardcoded case information and penal code
-    const systemMessage = `သင်သည် မြန်မာပြစ်မှုဥပဒေတွင် အထူးကျွမ်းကျင်သော ဥပဒေအကြံပေးတစ်ဦး ဖြစ်သည်။ အောက်ပါ မြန်မာပြစ်မှုဥပဒေကို သင်ကောင်းမွန်စွာ နားလည်သည်:
+    // Create system message with more detailed instructions for thorough responses
+    const systemMessage = `သင်သည် မြန်မာပြစ်မှုဥပဒေတွင် အထူးကျွမ်းကျင်သော ဥပဒေအကြံပေးတစ်ဦး ဖြစ်သည်။ 
+
+သင့်ထံမှ မည်သည့်အကြောင်းအရာကိုမဆို အလွန်အသေးစိတ်ကျပြီး အပြည့်အစုံဖြင့် တိကျစွာဖြေဆိုရမည်။ တိုတောင်းသော အဖြေများကို ရှောင်ရှားပါ။ ဖြေကြားရာတွင် အမှုနှင့်သက်ဆိုင်သော သုံးသပ်ချက်များ၊ ဥပဒေဆိုင်ရာ ရှင်းလင်းချက်များ၊ အကြောင်းရင်းများနှင့် အချက်အလက်များကို အပြည့်အစုံဖြေဆိုပေးရမည်။ စာပိုဒ်ခွဲခြားခြင်း၊ ခေါင်းစဉ်ခွဲများသုံးခြင်းဖြင့် စနစ်ကျပြီး ဖတ်ရှုရလွယ်ကူအောင် ရေးသားပေးရမည်။ သင်၏အဖြေများသည် အနည်းဆုံး စာပိုဒ် ၄-၅ ပိုဒ်လောက်ရှိသင့်သည်။
+
+သင်သည် အောက်ပါ မြန်မာပြစ်မှုဥပဒေကို သင်ကောင်းမွန်စွာ နားလည်သည်:
 
 ${myanmarPenalCode}
 
@@ -72,9 +76,11 @@ ${myanmarPenalCode}
 
 ${caseContext.additionalDetails}
 
+အထက်ပါ အမှုကို ပြည့်စုံစွာ စိစစ်ပြီး အမှုနှင့်သက်ဆိုင်သော ဥပဒေပုဒ်မများအားလုံးကို ကိုးကားရှင်းလင်းပါ။ ဓားပြမှု၊ လူသတ်မှု၊ ပိုင်ဆိုင်မှုခိုးယူမှု စသည့် ပြစ်မှုများကို သီးခြားစီ ခွဲခြမ်းစိတ်ဖြာပြီး ပုဒ်မအလိုက် အပြစ်ဒဏ်များကို အသေးစိတ်ရှင်းပြပါ။ ဖြစ်နိုင်သော အမြင့်ဆုံးအပြစ်ဒဏ်အကြောင်း အပြည့်အစုံဖြေဆိုပါ။
+
 သင်သည် မေးခွန်းများကို မြန်မာဘာသာဖြင့် တုံ့ပြန်ရမည်။ ဥပဒေဆိုင်ရာ အထူးကျွမ်းကျင်သူတစ်ဦးပီပီ ပညာရပ်ဆိုင်ရာ ဘာသာရပ်အသုံးအနှုန်းများ၊ ရှင်းလင်းသော ဥပဒေဆိုင်ရာ အကြံပေးခြင်းနှင့် ဥပဒေပုဒ်မများကို ကိုးကားရှင်းလင်း၍ အသေးစိတ်ဖြေဆိုပေးရန် ဖြစ်သည်။`;
 
-    // Call OpenAI API
+    // Call OpenAI API with improved instructions
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -82,12 +88,13 @@ ${caseContext.additionalDetails}
         Authorization: `Bearer ${openaiApiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "gpt-4o",  // Using more capable model for detailed responses
         messages: [
           { role: "system", content: systemMessage },
           { role: "user", content: message }
         ],
         temperature: 0.7,
+        max_tokens: 4000,  // Allow for longer responses
       }),
     });
 
