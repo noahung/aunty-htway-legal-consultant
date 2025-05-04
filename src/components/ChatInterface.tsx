@@ -2,13 +2,15 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send } from "lucide-react";
+import { Send, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
+  username: string;
 }
 
 interface DbMessage {
@@ -45,6 +47,7 @@ const ChatInterface = () => {
           const formattedMessages: Message[] = data.map((msg: DbMessage) => ({
             role: msg.is_ai ? "assistant" : "user",
             content: msg.content,
+            username: msg.username, // Include the username from the database
           }));
           setMessages(formattedMessages);
         } else {
@@ -52,13 +55,14 @@ const ChatInterface = () => {
           const greeting: Message = {
             role: "assistant",
             content: "မင်္ဂလာပါ။ ကျွန်ုပ်သည် မြန်မာပြစ်မှုဥပဒေနှင့် ပတ်သက်၍ အထူးအကြံဉာဏ်ပေးသည့် ဥပဒေအကြံပေးတစ်ဦး ဖြစ်ပါသည်။ ကိုစိုင်းနှင့် ဒေါက်တာထွေးထွေးတို့၏ အမှုကိစ္စနှင့်ပတ်သက်၍ သင့်မေးခွန်းများကို မေးမြန်းနိုင်ပါပြီ။",
+            username: "ဥပဒေအကြံပေး"
           };
           
           setMessages([greeting]);
           
           // Save greeting to database
           await saveMessageToDb({
-            username: "AI Assistant",
+            username: "ဥပဒေအကြံပေး",
             content: greeting.content,
             is_ai: true
           });
@@ -100,6 +104,7 @@ const ChatInterface = () => {
     const userMessage: Message = {
       role: "user",
       content: input,
+      username: username,
     };
 
     setMessages((prevMessages) => [...prevMessages, userMessage]);
@@ -128,14 +133,15 @@ const ChatInterface = () => {
       
       const assistantMessage: Message = {
         role: "assistant",
-        content: aiResponse
+        content: aiResponse,
+        username: "ဥပဒေအကြံပေး"
       };
 
       setMessages((prevMessages) => [...prevMessages, assistantMessage]);
       
       // Save AI response to database
       await saveMessageToDb({
-        username: "AI Assistant",
+        username: "ဥပဒေအကြံပေး",
         content: aiResponse,
         is_ai: true
       });
@@ -175,9 +181,16 @@ const ChatInterface = () => {
               <div className="flex items-start">
                 <div className="flex-grow">
                   {message.role === "user" && (
-                    <p className="font-medium mb-1 text-gray-700">
-                      [{username}]
-                    </p>
+                    <div className="flex items-center gap-2 mb-1">
+                      <Avatar className="h-6 w-6 bg-blue-300">
+                        <AvatarFallback>
+                          <User className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <p className="font-medium text-gray-700">
+                        [{message.username}]
+                      </p>
+                    </div>
                   )}
                   {message.role === "assistant" && (
                     <p className="font-medium mb-1 text-myanmar-primary">
