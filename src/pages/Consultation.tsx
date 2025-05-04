@@ -28,7 +28,7 @@ const Consultation = () => {
             <div className="bg-myanmar-light p-3 rounded-lg shadow-sm mb-4 md:mb-0 flex flex-col items-center">
               <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-myanmar-primary mb-2">
                 <img 
-                  src="/lovable-uploads/1f837d20-4554-43c5-ac88-07c17583ac0f.png" 
+                  src="/lovable-uploads/27373df5-fa38-44df-9e3a-f1d9cad8e26b.png" 
                   alt="Dr. Htway Htway" 
                   className="w-full h-full object-cover"
                 />
